@@ -19,6 +19,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
+import android.util.TypedValue;
 
 import com.yydcdut.rxmarkdown.callback.BlockquoteBackgroundNestedColorFetcher;
 import com.yydcdut.rxmarkdown.callback.OnLinkClickCallback;
@@ -64,6 +65,9 @@ public class RxMDConfiguration {
     private RxMDImageLoader rxMDImageLoader;
     private OnLinkClickCallback onLinkClickCallback;
 
+    private final int quoteNestedMargin;
+    private final int quotedStartMargin;
+
 
     private boolean isDebug = true;
 
@@ -103,7 +107,9 @@ public class RxMDConfiguration {
                               int todoColor, int todoDoneColor, int unOrderListColor,
                               int blockQuoteBgColor, int linkColor, boolean isLinkUnderline,
                               RxMDImageLoader rxMDImageLoader, OnLinkClickCallback onLinkClickCallback,
-                              boolean isDebug, boolean isAppendNewlineAfterLastLine, BlockquoteBackgroundNestedColorFetcher colorFetcher) {
+                              boolean isDebug, boolean isAppendNewlineAfterLastLine,
+                              BlockquoteBackgroundNestedColorFetcher colorFetcher,
+                              int quoteNestedMargin, int quotedStartMargin) {
         this.defaultImageSize = defaultImageSize;
         this.blockQuotesColor = blockQuotesColor;
         this.header1RelativeSize = header1RelativeSize;
@@ -128,6 +134,8 @@ public class RxMDConfiguration {
         this.isDebug = isDebug;
         this.isAppendNewlineAfterLastLine = isAppendNewlineAfterLastLine;
         this.colorFetcher = colorFetcher;
+        this.quoteNestedMargin = quoteNestedMargin;
+        this.quotedStartMargin = quotedStartMargin;
     }
 
     /**
@@ -349,6 +357,25 @@ public class RxMDConfiguration {
     }
 
     /**
+     * Nested margin for quotes.
+     *
+     * @return nesting margin
+     */
+
+    public int getQuoteNestedMargin() {
+        return quoteNestedMargin;
+    }
+
+    /**
+     * The space between left border of view and quote's line.
+     *
+     * @return start margin
+     */
+    public int getQuotedStartMargin() {
+        return quotedStartMargin;
+    }
+
+    /**
      * the build of configuration
      */
     public static class Builder {
@@ -403,6 +430,8 @@ public class RxMDConfiguration {
 
         private BlockquoteBackgroundNestedColorFetcher colorFetcher = null;
 
+        private int nestedMargin;
+        private int startMargin;
 
         /**
          * Constructor
@@ -432,6 +461,10 @@ public class RxMDConfiguration {
             rxMDImageLoader = new DefaultLoader(context);
             mOnLinkClickCallback = null;
             isAppendNewlineAfterLastLine = true;
+
+            nestedMargin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8F,
+                    context.getResources().getDisplayMetrics()));
+            startMargin = 0;
         }
 
         /**
@@ -701,6 +734,28 @@ public class RxMDConfiguration {
         }
 
         /**
+         * set nested block quote margin
+         *
+         * @param margin margin
+         * @return self
+         */
+        public Builder setBlockQuotesNestedMargin(int margin) {
+            this.nestedMargin = margin;
+            return this;
+        }
+
+        /**
+         * The space between left border of view and quote's line.
+         *
+         * @param margin start margin
+         * @return self
+         */
+        public Builder setBlockQuotesStartMargin(int margin) {
+            this.startMargin = margin;
+            return this;
+        }
+
+        /**
          * get RxMDConfiguration
          *
          * @return RxMDConfiguration
@@ -718,7 +773,7 @@ public class RxMDConfiguration {
                     todoColor, todoDoneColor, unOrderListColor,
                     blockQuoteBgColor, linkColor, isLinkUnderline,
                     rxMDImageLoader, mOnLinkClickCallback,
-                    isDebug, isAppendNewlineAfterLastLine, colorFetcher);
+                    isDebug, isAppendNewlineAfterLastLine, colorFetcher, nestedMargin, startMargin);
         }
 
     }

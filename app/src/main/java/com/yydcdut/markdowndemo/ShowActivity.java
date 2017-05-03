@@ -23,9 +23,10 @@ import com.yydcdut.rxmarkdown.callback.OnLinkClickCallback;
 import com.yydcdut.rxmarkdown.factory.TextFactory;
 import com.yydcdut.rxmarkdown.loader.RxMDImageLoader;
 
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * Created by yuyidong on 16/5/11.
@@ -86,6 +87,7 @@ public class ShowActivity extends AppCompatActivity {
                     }
                 })
                 .build();
+
         final long beginTime = System.currentTimeMillis();
         RxMarkdown.with(content, this)
                 .config(rxMDConfiguration)
@@ -93,13 +95,14 @@ public class ShowActivity extends AppCompatActivity {
                 .intoObservable()
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<CharSequence>() {
+                .subscribeWith(new DisposableObserver<CharSequence>() {
                     @Override
-                    public void onCompleted() {
+                    public void onError(Throwable e) {
                     }
 
                     @Override
-                    public void onError(Throwable e) {
+                    public void onComplete() {
+
                     }
 
                     @Override

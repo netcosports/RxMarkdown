@@ -39,7 +39,8 @@ class BlockQuotesGrammar extends AbsAndroidGrammar {
      * {@link com.yydcdut.rxmarkdown.span.MDQuoteSpan#KEY_BLOCK_QUOTES}
      */
     protected static final String KEY_BLOCK_QUOTES = ">";
-    private static final int NESTING_MARGIN = 25;
+    private final int mNestedMargin;
+    private final int mStartMargin;
     private final int mBackgroundColor;
     private final float mRelativeSize;
     private final BlockquoteBackgroundNestedColorFetcher mColorFetcher;
@@ -49,6 +50,8 @@ class BlockQuotesGrammar extends AbsAndroidGrammar {
     BlockQuotesGrammar(@NonNull RxMDConfiguration rxMDConfiguration) {
         super(rxMDConfiguration);
         mColor = rxMDConfiguration.getBlockQuotesColor();
+        mNestedMargin = rxMDConfiguration.getQuoteNestedMargin();
+        mStartMargin = rxMDConfiguration.getQuotedStartMargin();
         mBackgroundColor = rxMDConfiguration.getBlockQuoteBgColor();
         mRelativeSize = rxMDConfiguration.getBlockQuoteRelativeSize();
         mColorFetcher = rxMDConfiguration.getBlockQuoteBackgroundNestedColorFetcher() == null ?
@@ -122,12 +125,13 @@ class BlockQuotesGrammar extends AbsAndroidGrammar {
         if (ssb.length() == 0) {
             ssb.append(' ');
         }
-        ssb.setSpan(new MDQuoteSpan(mColor, nested), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | (2 << Spanned.SPAN_PRIORITY_SHIFT));
-        ssb.setSpan(new MDQuoteBackgroundSpan(nested, NESTING_MARGIN, mColorFetcher), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | (1 << Spanned.SPAN_PRIORITY_SHIFT));
+        ssb.setSpan(new MDQuoteSpan(mColor, nested, mNestedMargin, mStartMargin), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | (2 << Spanned.SPAN_PRIORITY_SHIFT));
+        ssb.setSpan(new MDQuoteBackgroundSpan(nested, mNestedMargin, mStartMargin, mColorFetcher), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | (1 << Spanned.SPAN_PRIORITY_SHIFT));
+
         if (mRelativeSize > 1f || mRelativeSize < 1f) {
             ssb.setSpan(new RelativeSizeSpan(mRelativeSize), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        marginSSBLeft(ssb, nested * NESTING_MARGIN);
+        marginSSBLeft(ssb, mStartMargin + nested * mNestedMargin);
         return ssb;
     }
 

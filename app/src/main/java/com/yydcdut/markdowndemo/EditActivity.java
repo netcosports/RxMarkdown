@@ -28,11 +28,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * Created by yuyidong on 16/7/23.
@@ -43,7 +44,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     private FloatingActionButton mFloatingActionButton;
 
     private Observable<CharSequence> mObservable;
-    private Subscription mSubscription;
+    private Disposable mSubscription;
     private HorizontalEditScrollView mHorizontalEditScrollView;
 
     @Override
@@ -76,26 +77,28 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 .setTodoDoneColor(0xffff8800)
                 .setUnOrderListColor(0xff00ddff)
                 .build();
+
         mHorizontalEditScrollView.setEditTextAndConfig(mEditText, rxMDConfiguration);
-        mEditText.setText(Const.MD_SAMPLE);
+        mEditText.setText(Const.MD_SAMPLE0);
         mObservable = RxMarkdown.live(mEditText)
                 .config(rxMDConfiguration)
                 .factory(EditFactory.create())
                 .intoObservable()
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread());
+
         final long time = System.currentTimeMillis();
         mSubscription = mObservable
-                .subscribe(new Subscriber<CharSequence>() {
-                    @Override
-                    public void onCompleted() {
-
-                    }
-
+                .subscribeWith(new DisposableObserver<CharSequence>() {
                     @Override
                     public void onError(Throwable e) {
                         Snackbar.make(mFloatingActionButton, e.getMessage(), Snackbar.LENGTH_SHORT).show();
                         e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
                     }
 
                     @Override
@@ -143,16 +146,16 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         if (id == R.id.action_enable) {
             final long time = System.currentTimeMillis();
             mSubscription = mObservable
-                    .subscribe(new Subscriber<CharSequence>() {
-                        @Override
-                        public void onCompleted() {
-
-                        }
-
+                    .subscribeWith(new DisposableObserver<CharSequence>() {
                         @Override
                         public void onError(Throwable e) {
                             Snackbar.make(mFloatingActionButton, e.getMessage(), Snackbar.LENGTH_SHORT).show();
                             e.printStackTrace();
+                        }
+
+                        @Override
+                        public void onComplete() {
+
                         }
 
                         @Override
@@ -163,7 +166,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             return true;
         } else if (id == R.id.action_disable) {
             if (mSubscription != null) {
-                mSubscription.unsubscribe();
+                mSubscription.dispose();
                 mSubscription = null;
                 mEditText.clear();
             }

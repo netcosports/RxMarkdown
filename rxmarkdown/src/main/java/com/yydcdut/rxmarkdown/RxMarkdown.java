@@ -22,8 +22,9 @@ import android.util.Log;
 import com.yydcdut.rxmarkdown.factory.AbsGrammarFactory;
 import com.yydcdut.rxmarkdown.factory.TextFactory;
 
-import rx.Observable;
-import rx.functions.Func1;
+import io.reactivex.Observable;
+import io.reactivex.functions.Function;
+
 
 /**
  * RxMarkdown for TextView:
@@ -50,13 +51,13 @@ import rx.functions.Func1;
  */
 public class RxMarkdown {
     private static final String TAG = RxMarkdown.class.getName();
-    private String mContent;
+    private CharSequence mContent;
     private RxMDEditText mRxMDEditText;
     private Context mContext;
     private AbsGrammarFactory mAbsGrammarFactory;
     private RxMDConfiguration mRxMDConfiguration;
 
-    private RxMarkdown(String content, Context context) {
+    private RxMarkdown(CharSequence content, Context context) {
         mContent = content;
         mContext = context;
     }
@@ -73,7 +74,7 @@ public class RxMarkdown {
      * @param context {@link Context}
      * @return RxMarkdown object
      */
-    public static RxMarkdown with(String content, Context context) {
+    public static RxMarkdown with(CharSequence content, Context context) {
         return new RxMarkdown(content, context);
     }
 
@@ -118,9 +119,9 @@ public class RxMarkdown {
     public Observable<CharSequence> intoObservable() {
         if (mContent != null) {
             return Observable.just(mContent)
-                    .map(new Func1<String, CharSequence>() {
+                    .map(new Function<CharSequence, CharSequence>() {
                         @Override
-                        public CharSequence call(String s) {
+                        public CharSequence apply(CharSequence s) throws Exception {
                             if (mAbsGrammarFactory != null) {
                                 RxMDConfiguration config = getRxMDConfiguration();
                                 long time = System.currentTimeMillis();
@@ -135,9 +136,9 @@ public class RxMarkdown {
                     });
         } else {
             return Observable.just(mRxMDEditText)
-                    .map(new Func1<RxMDEditText, CharSequence>() {
+                    .map(new Function<RxMDEditText, CharSequence>() {
                         @Override
-                        public CharSequence call(RxMDEditText rxMDEditText) {
+                        public CharSequence apply(@NonNull RxMDEditText rxMDEditText) throws Exception {
                             if (mAbsGrammarFactory == null) {
                                 return rxMDEditText.getText();
                             }
@@ -161,5 +162,4 @@ public class RxMarkdown {
         }
         return mRxMDConfiguration;
     }
-
 }

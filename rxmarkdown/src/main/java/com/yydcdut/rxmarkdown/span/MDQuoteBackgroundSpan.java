@@ -10,13 +10,16 @@ import com.yydcdut.rxmarkdown.callback.BlockquoteBackgroundNestedColorFetcher;
 public class MDQuoteBackgroundSpan implements LineBackgroundSpan {
     private final int nestingLevel;
     private final int nestingMargin;
+    private final int startMargin;
+
     private final BlockquoteBackgroundNestedColorFetcher colorFetcher;
     private Rect rect = new Rect();
 
-    public MDQuoteBackgroundSpan(int nestingLevel, int nestingMargin, BlockquoteBackgroundNestedColorFetcher colorFetcher) {
+    public MDQuoteBackgroundSpan(int nestingLevel, int nestingMargin, int startMargin, BlockquoteBackgroundNestedColorFetcher colorFetcher) {
         this.nestingLevel = nestingLevel;
         this.nestingMargin = nestingMargin;
         this.colorFetcher = colorFetcher;
+        this.startMargin = startMargin;
     }
 
     @Override

@@ -35,11 +35,12 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * image grammar span
@@ -129,9 +130,9 @@ public class MDImageSpan extends DynamicDrawableSpan {
         mIsRequestSubmitted = true;
         Observable.just(mImageUri)
                 .observeOn(Schedulers.io())
-                .map(new Func1<String, byte[]>() {
+                .map(new Function<String, byte[]>() {
                     @Override
-                    public byte[] call(String url) {
+                    public byte[] apply(String url) throws Exception {
                         byte[] bytes = null;
                         try {
                             bytes = mRxMDImageLoader.loadSync(getUrl(url));
@@ -141,9 +142,9 @@ public class MDImageSpan extends DynamicDrawableSpan {
                         return bytes;
                     }
                 })
-                .map(new Func1<byte[], Drawable>() {
+                .map(new Function<byte[], Drawable>() {
                     @Override
-                    public Drawable call(byte[] bytes) {
+                    public Drawable apply(byte[] bytes) throws Exception {
                         if (bytes == null) {
                             return mPlaceHolder;
                         }
@@ -151,15 +152,16 @@ public class MDImageSpan extends DynamicDrawableSpan {
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<Drawable>() {
-                    @Override
-                    public void onCompleted() {
-
-                    }
+                .subscribeWith(new DisposableObserver<Drawable>() {
 
                     @Override
                     public void onError(Throwable e) {
                         e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
                     }
 
                     @Override

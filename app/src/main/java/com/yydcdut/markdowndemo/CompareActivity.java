@@ -18,7 +18,8 @@ import com.yydcdut.rxmarkdown.RxMarkdown;
 import com.yydcdut.rxmarkdown.factory.EditFactory;
 import com.yydcdut.rxmarkdown.factory.TextFactory;
 
-import rx.Subscriber;
+import io.reactivex.observers.DisposableObserver;
+
 
 /**
  * Created by yuyidong on 16/7/23.
@@ -61,7 +62,7 @@ public class CompareActivity extends AppCompatActivity implements TextWatcher {
                 .setLinkColor(0xff00ddff)
                 .build();
         horizontalEditScrollView.setEditTextAndConfig(mRxMDEditText, mRxMDConfiguration);
-        mRxMDEditText.setText(Const.MD_SAMPLE);
+        mRxMDEditText.setText(Const.MD_SAMPLE0);
         RxMarkdown.live(mRxMDEditText)
                 .config(mRxMDConfiguration)
                 .factory(EditFactory.create())
@@ -90,13 +91,14 @@ public class CompareActivity extends AppCompatActivity implements TextWatcher {
                 .intoObservable()
 //                .subscribeOn(Schedulers.computation())
 //                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<CharSequence>() {
+                .subscribeWith(new DisposableObserver<CharSequence>() {
                     @Override
-                    public void onCompleted() {
+                    public void onError(Throwable e) {
                     }
 
                     @Override
-                    public void onError(Throwable e) {
+                    public void onComplete() {
+
                     }
 
                     @Override
